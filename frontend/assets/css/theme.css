@@ -1,0 +1,165 @@
+/* ══════════════════════════════════════════════════════════════════════════
+ * theme.css — 设计令牌与主题
+ *
+ * 设计基准：桌面 GIS 软件（ArcGIS Pro / QGIS），不是网页。
+ *   · 密度：13px 基准字号，26px 行高，紧凑但留足呼吸感
+ *   · 间距：8px 栅格；工具栏按钮之间 12px，面板内边距 12~16px
+ *   · 颜色：中性灰阶 + 单一强调色（#0a84d0，接近 Windows 10 强调蓝）
+ *   · 禁止：渐变、毛玻璃、发光、圆角胶囊、emoji 图标、夸张动效
+ *           —— 这些是「网页味 / AI 味」的主要来源
+ *   · 阴影：只用于浮层（对话框、下拉、弹出框），面板之间用 1px 实线分隔
+ *
+ * 主题：深色用于值班大屏，浅色用于汇报与打印，靠 data-theme 切换。
+ * ══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* 尺寸体系 */
+  --sz-titlebar: 50px;
+  --sz-ribbon: 106px;
+  --sz-statusbar: 26px;
+  --sz-sidepanel: 268px;
+  --sz-grid: 8px;
+  --sz-radius: 2px;          /* 桌面软件是小圆角，不是网页的大圆角 */
+  /* 字体统一为微软雅黑。
+   * 原先 --font-ui 把 "Segoe UI" 放在最前：英文与数字走 Segoe UI、中文回退到
+   * 微软雅黑，两套字形混排，视觉上明显不统一；--font-mono 又引入第三种字形
+   * （Cascadia Mono / Consolas），状态栏与表格数字与正文再不一致。
+   * 现在正文与数字统一用同一套 Microsoft YaHei 字形。 */
+  --font-ui: "Microsoft YaHei", "微软雅黑", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Microsoft YaHei", "微软雅黑", "Segoe UI", system-ui, sans-serif;
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-md: 13px;
+  --fs-lg: 15px;
+  --fs-xl: 19px;
+}
+
+/* ── 深色主题（默认，值班大屏）── */
+:root,
+[data-theme="dark"] {
+  --c-app-bg:      #2b2b2b;
+  --c-panel:       #323232;
+  --c-panel-alt:   #383838;
+  --c-header:      #3c3c3c;
+  --c-ribbon:      #333333;
+  --c-titlebar:    #1f1f1f;
+  --c-statusbar:   #1f1f1f;
+  --c-border:      #4a4a4a;
+  --c-border-soft: #3d3d3d;
+  --c-text:        #e6e6e6;
+  --c-text-dim:    #a8a8a8;
+  --c-text-faint:  #7d7d7d;
+  --c-hover:       #3f3f3f;
+  --c-active:      #4a4a4a;
+  --c-input-bg:    #262626;
+  --c-row-alt:     #2f2f2f;
+  --c-map-void:    #24282c;   /* 底图未加载时的画布底色 */
+
+  --c-accent:      #0a84d0;
+  --c-accent-text: #ffffff;
+  --c-accent-dim:  #0a6aa8;
+  --c-focus:       #4cb3f0;
+
+  --c-ok:          #5b9e6b;
+  --c-warn:        #cf9a3a;
+  --c-alarm:       #c25a52;
+  --c-unknown:     #6d6d6d;
+
+  --shadow-pop: 0 6px 20px rgba(0, 0, 0, .5);
+}
+
+/* ── 浅色主题（汇报 / 打印）── */
+[data-theme="light"] {
+  --c-app-bg:      #e8e8e8;
+  --c-panel:       #f5f5f5;
+  --c-panel-alt:   #ededed;
+  --c-header:      #e0e0e0;
+  --c-ribbon:      #f0f0f0;
+  --c-titlebar:    #d6d6d6;
+  --c-statusbar:   #d6d6d6;
+  --c-border:      #c4c4c4;
+  --c-border-soft: #d8d8d8;
+  --c-text:        #1c1c1c;
+  --c-text-dim:    #5a5a5a;
+  --c-text-faint:  #8a8a8a;
+  --c-hover:       #dcdcdc;
+  --c-active:      #cfcfcf;
+  --c-input-bg:    #ffffff;
+  --c-row-alt:     #f0f0f0;
+  --c-map-void:    #dfe3e6;
+
+  --c-accent:      #0a6ebd;
+  --c-accent-text: #ffffff;
+  --c-accent-dim:  #085a99;
+  --c-focus:       #0a84d0;
+
+  --c-ok:          #3f7f4f;
+  --c-warn:        #a8791f;
+  --c-alarm:       #a8443c;
+  --c-unknown:     #8a8a8a;
+
+  --shadow-pop: 0 6px 18px rgba(0, 0, 0, .22);
+}
+
+/* ── 基础重置 ── */
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;                     /* 桌面软件不整页滚动 */
+}
+
+body {
+  font-family: var(--font-ui);
+  font-size: var(--fs-md);
+  line-height: 1.45;
+  color: var(--c-text);
+  background: var(--c-app-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 桌面软件里文字默认不可选（拖拽/点选不误选字），需要复制的地方单独放开 */
+body { user-select: none; }
+.selectable, input, textarea, pre, code, .wq-table td { user-select: text; }
+
+h1, h2, h3, h4 { margin: 0; font-weight: 600; }
+p { margin: 0 0 8px; }
+a { color: var(--c-accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+button { cursor: pointer; }
+button:disabled { cursor: default; opacity: .45; }
+
+/* 统一焦点环：键盘可达性，也是桌面软件的既有习惯 */
+:focus-visible {
+  outline: 2px solid var(--c-focus);
+  outline-offset: -1px;
+}
+
+/* 细滚动条（桌面软件观感） */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--c-border);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--c-text-faint); background-clip: content-box; }
+::-webkit-scrollbar-corner { background: transparent; }
+
+/* 尊重系统「减少动效」设置 */
+@media (prefers-reduced-motion: reduce) {
+  /* 这里原来是一条 `* { transition: none !important; animation: none !important }`，
+   * 范围过宽：把侧栏开合、对话框出现、悬停反馈这些**功能性过渡**也一并杀掉了，
+   * 表现为"侧边栏没有动画"。系统开启减少动效时，该去掉的是持续脉冲/晃动这类
+   * 让人不适的效果，而不是抹掉所有操作反馈。故收窄到只针对循环动画。 */
+  .wq-pin--alarm svg > path { animation: none !important; }
+}

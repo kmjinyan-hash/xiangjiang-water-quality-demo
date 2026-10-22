@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="wq-asset-v" content="%V%">
+<title>湘江流域水质智能预警平台</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.6c3.1 3.4 5.4 6 5.4 8.9A5.4 5.4 0 0 1 12 17a5.4 5.4 0 0 1-5.4-5.5C6.6 8.6 8.9 6 12 2.6Z' fill='none' stroke='%230a84d0' stroke-width='1.6'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="assets/css/theme.css?v=%V%">
+<link rel="stylesheet" href="assets/css/app.css?v=%V%">
+</head>
+<body>
+
+  <!-- ══════════ 图标精灵（唯一来源；改图标只改这一块）══════════
+       内联在页面里而**不是**外部 icons.svg：双击 dist/index.html 时页面是
+       file://，Chrome 把每个文件视为独立来源，跨文档 <use href="xxx.svg#id"> 会被
+       直接拦掉，表现为"所有按钮图标都没了"。内联后引用变成同文档 #id，
+       在 file:// / http(s) / 打包 WebView 三种投放方式下都成立。 -->
+  <svg class="wq-sprite" style="display:none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <!--
+      图标精灵 —— 统一 24x24 视框、1.6px 线宽、圆角端点的线框图标。
+      刻意不使用 emoji：emoji 的彩色卡通风是「网页味 / AI 味」的主要来源，
+      桌面 GIS 软件一律用单色线框图标。颜色统一继承 currentColor。
+    -->
+    <defs>
+      <style>
+        symbol > g { fill: none; stroke: currentColor; stroke-width: 1.6;
+                     stroke-linecap: round; stroke-linejoin: round; }
+        symbol > g .solid { fill: currentColor; stroke: none; }
+      </style>
+    </defs>
+  
+    <!-- 应用标识：水滴 + 波形 -->
+    <symbol id="i-app" viewBox="0 0 24 24">
+      <g>
+        <path d="M12 2.6c3.1 3.4 5.4 6 5.4 8.9A5.4 5.4 0 0 1 12 17a5.4 5.4 0 0 1-5.4-5.5C6.6 8.6 8.9 6 12 2.6Z"/>
+        <path d="M3 20.4c1.5-.9 3-.9 4.5 0s3 .9 4.5 0 3-.9 4.5 0 3 .9 4.5 0"/>
+      </g>
+    </symbol>
+  
+    <!-- 视图 -->
+    <symbol id="i-map" viewBox="0 0 24 24">
+      <g><path d="M9 3.6 3.4 5.9v14.5L9 18.1l6 2.3 5.6-2.3V3.6L15 5.9Z"/><path d="M9 3.6v14.5M15 5.9v14.5"/></g>
+    </symbol>
+    <symbol id="i-table" viewBox="0 0 24 24">
+      <g><rect x="3" y="4.5" width="18" height="15" rx="1"/><path d="M3 9.4h18M3 14.4h18M9.5 4.5v15"/></g>
+    </symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24">
+      <g><path d="M3.6 3.6v16.8h16.8"/><path d="m7 15 3.6-4.4 3 2.6L20 7"/></g>
+    </symbol>
+    <symbol id="i-report" viewBox="0 0 24 24">
+      <g><path d="M6 2.8h8.2L19 7.6v13.6H6z"/><path d="M14 2.8v5h5"/><path d="M9 12.6h7M9 16.2h5"/></g>
+    </symbol>
+  
+    <!-- 地图操作 -->
+    <symbol id="i-fit" viewBox="0 0 24 24">
+      <g><path d="M3.6 8.4V3.6h4.8M15.6 3.6h4.8v4.8M20.4 15.6v4.8h-4.8M8.4 20.4H3.6v-4.8"/><circle cx="12" cy="12" r="2.6"/></g>
+    </symbol>
+    <symbol id="i-locate" viewBox="0 0 24 24">
+      <g><circle cx="12" cy="12" r="7.4"/><circle cx="12" cy="12" r="2.2"/><path d="M12 1.8v3.4M12 18.8v3.4M1.8 12h3.4M18.8 12h3.4"/></g>
+    </symbol>
+    <symbol id="i-measure" viewBox="0 0 24 24">
+      <g><path d="M3.2 14.6 9.4 8.4l4.2 4.2 7-7"/><path d="M15.6 3.6h5v5"/><circle cx="9.4" cy="8.4" r="1.5"/></g>
+    </symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24">
+      <g><path d="m12 3.2 8.6 4.4L12 12 3.4 7.6Z"/><path d="m3.4 12.4 8.6 4.4 8.6-4.4"/><path d="m3.4 16.8 8.6 4.4 8.6-4.4"/></g>
+    </symbol>
+    <symbol id="i-basemap" viewBox="0 0 24 24">
+      <g><rect x="3" y="3.6" width="18" height="16.8" rx="1"/><path d="m3 15 4.6-4.6 4 4 3.4-3.4L21 16.6"/><circle cx="8.6" cy="8.2" r="1.5"/></g>
+    </symbol>
+    <symbol id="i-zoomin" viewBox="0 0 24 24">
+      <g><circle cx="10.6" cy="10.6" r="6.6"/><path d="M15.4 15.4 20.6 20.6M10.6 7.8v5.6M7.8 10.6h5.6"/></g>
+    </symbol>
+    <symbol id="i-zoomout" viewBox="0 0 24 24">
+      <g><circle cx="10.6" cy="10.6" r="6.6"/><path d="M15.4 15.4 20.6 20.6M7.8 10.6h5.6"/></g>
+    </symbol>
+  
+    <!-- 数据与操作 -->
+    <symbol id="i-predict" viewBox="0 0 24 24">
+      <g><path d="M4.4 5.6h15.2v12.8H4.4z"/><path d="m10 9.4 5 2.6-5 2.6z"/></g>
+    </symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24">
+      <g><path d="M20.2 12a8.2 8.2 0 1 1-2.5-5.9"/><path d="M20.4 3.6v4.6h-4.6"/></g>
+    </symbol>
+    <symbol id="i-download" viewBox="0 0 24 24">
+      <g><path d="M12 3.4v11.4"/><path d="m7.6 10.6 4.4 4.4 4.4-4.4"/><path d="M3.8 19.8h16.4"/></g>
+    </symbol>
+    <symbol id="i-export" viewBox="0 0 24 24">
+      <g><path d="M16.4 5.8v-2.4H3.6v13h2.6"/><path d="M7.6 7.6h12.8v13H7.6z"/><path d="M11 14.1h6M14 11.1v6"/></g>
+    </symbol>
+    <symbol id="i-add" viewBox="0 0 24 24">
+      <g><path d="M12 4.6v14.8M4.6 12h14.8"/></g>
+    </symbol>
+    <symbol id="i-list" viewBox="0 0 24 24">
+      <g><path d="M8.4 6.4h12M8.4 12h12M8.4 17.6h12"/><circle class="solid" cx="4.4" cy="6.4" r="1.3"/><circle class="solid" cx="4.4" cy="12" r="1.3"/><circle class="solid" cx="4.4" cy="17.6" r="1.3"/></g>
+    </symbol>
+    <symbol id="i-threshold" viewBox="0 0 24 24">
+      <g><path d="M3.6 17.4h16.8"/><path d="M3.6 11.2h16.8" stroke-dasharray="2.6 2.2"/><path d="m6.4 20.4 3-9.2 3 6.2 2.6-4.4 2.6 7.4"/></g>
+    </symbol>
+    <symbol id="i-delete" viewBox="0 0 24 24">
+      <g><path d="M4.6 6.4h14.8M9.4 6.4V4.2h5.2v2.2"/><path d="M6.6 6.4 7.8 20.4h8.4L17.4 6.4"/><path d="M10.4 10v6.6M13.6 10v6.6"/></g>
+    </symbol>
+  
+    <!-- 界面 -->
+    <symbol id="i-theme" viewBox="0 0 24 24">
+      <g><path d="M20.4 14.6A8.6 8.6 0 0 1 9.4 3.6a8.6 8.6 0 1 0 11 11Z"/></g>
+    </symbol>
+    <symbol id="i-help" viewBox="0 0 24 24">
+      <g><circle cx="12" cy="12" r="8.6"/><path d="M9.6 9.6a2.5 2.5 0 0 1 4.9.6c0 1.6-2.5 2-2.5 3.6"/><circle class="solid" cx="12" cy="17.2" r="1.1"/></g>
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24">
+      <g><circle cx="10.6" cy="10.6" r="6.6"/><path d="M15.4 15.4 20.6 20.6"/></g>
+    </symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24">
+      <g><path d="M3.6 5.2h16.8l-6.4 7.4v6.2l-4-2v-4.2Z"/></g>
+    </symbol>
+    <symbol id="i-close" viewBox="0 0 24 24">
+      <g><path d="m5.6 5.6 12.8 12.8M18.4 5.6 5.6 18.4"/></g>
+    </symbol>
+    <symbol id="i-panel" viewBox="0 0 24 24">
+      <g><rect x="3" y="4.4" width="18" height="15.2" rx="1"/><path d="M9.4 4.4v15.2"/></g>
+    </symbol>
+    <symbol id="i-info" viewBox="0 0 24 24">
+      <g><circle cx="12" cy="12" r="8.6"/><path d="M12 11v5.4"/><circle class="solid" cx="12" cy="8" r="1.1"/></g>
+    </symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24">
+      <g><path d="M3.4 8.6h3.2l1.6-2.4h7.6l1.6 2.4h3.2v10H3.4Z"/><circle cx="12" cy="13.4" r="3.4"/></g>
+    </symbol>
+    <symbol id="i-landuse" viewBox="0 0 24 24">
+      <g><rect x="3.6" y="3.6" width="7.2" height="7.2" rx="0.6"/>
+         <rect x="13.2" y="3.6" width="7.2" height="7.2" rx="0.6"/>
+         <rect x="3.6" y="13.2" width="7.2" height="7.2" rx="0.6"/>
+         <rect x="13.2" y="13.2" width="7.2" height="7.2" rx="0.6"/></g>
+    </symbol>
+    <symbol id="i-warn" viewBox="0 0 24 24">
+      <g><path d="M12 3.4 21 19.6H3Z"/><path d="M12 9.6v4.2"/><circle class="solid" cx="12" cy="16.8" r="1.1"/></g>
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24">
+      <g><path d="m4.6 12.6 4.8 4.8 10-10.2"/></g>
+    </symbol>
+    <symbol id="i-station" viewBox="0 0 24 24">
+      <g><path d="M12 21.4c4-4.4 6.2-7.6 6.2-10.6a6.2 6.2 0 1 0-12.4 0c0 3 2.2 6.2 6.2 10.6Z"/><circle cx="12" cy="10.6" r="2.3"/></g>
+    </symbol>
+    <symbol id="i-river" viewBox="0 0 24 24">
+      <g><path d="M3 7.4c3 0 3 2.6 6 2.6s3-2.6 6-2.6 3 2.6 6 2.6"/><path d="M3 14.4c3 0 3 2.6 6 2.6s3-2.6 6-2.6 3 2.6 6 2.6"/></g>
+    </symbol>
+    <!-- 在线模型生成：四角星（AI 生成）-->
+    <symbol id="i-spark" viewBox="0 0 24 24">
+    <g><path d="M12 3.4 13.9 9.5 20 11.4 13.9 13.3 12 19.4 10.1 13.3 4 11.4 10.1 9.5Z"/><path d="M18.4 3.2v3"/><path d="M19.9 4.7h-3"/></g>
+    </symbol>
+  
+    <!-- 分析视图 / 时间轴 / 数据说明 -->
+    <symbol id="i-radar" viewBox="0 0 24 24">
+      <g><path d="M12 3.2 20.6 8v8L12 20.8 3.4 16V8Z"/><path d="M12 7.2 16.8 10v4L12 16.8 7.2 14v-4Z"/><path d="M12 12v8.8M12 12l8.6-4M12 12 3.4 8"/></g>
+    </symbol>
+    <symbol id="i-donut" viewBox="0 0 24 24">
+      <g><circle cx="12" cy="12" r="8.4"/><circle cx="12" cy="12" r="3.4"/><path d="M12 3.6v5M18 16.1l-4.2-2.4"/></g>
+    </symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24">
+      <g><rect x="3.4" y="5" width="17.2" height="15.4" rx="1"/><path d="M3.4 9.6h17.2M8 3.4v3.2M16 3.4v3.2"/><rect class="solid" x="7" y="12.4" width="3.2" height="3.2" rx="0.5"/></g>
+    </symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24">
+      <g><path d="M6 2.8h8.2L19 7.6v13.6H6z"/><path d="M14 2.8v5h5"/><path d="M9 11.4h6M9 14.6h6M9 17.8h4"/></g>
+    </symbol>
+    <symbol id="i-play" viewBox="0 0 24 24">
+      <g><path class="solid" d="M8.4 5.4 18.6 12 8.4 18.6Z"/></g>
+    </symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24">
+      <g><rect class="solid" x="7.6" y="5.6" width="3.2" height="12.8" rx="0.6"/><rect class="solid" x="13.2" y="5.6" width="3.2" height="12.8" rx="0.6"/></g>
+    </symbol>
+    <symbol id="i-model" viewBox="0 0 24 24">
+      <g><rect x="3.4" y="13.4" width="4" height="7" rx="0.6"/><rect x="10" y="8.6" width="4" height="11.8" rx="0.6"/><rect x="16.6" y="4.2" width="4" height="16.2" rx="0.6"/></g>
+    </symbol>
+  </svg>
+
+<div class="wq-app">
+
+  <!-- ═══════════ 标题栏 ═══════════ -->
+  <header class="wq-titlebar">
+    <svg class="wq-icon wq-titlebar__logo"><use href="#i-app"></use></svg>
+    <span class="wq-titlebar__title" id="appTitle">湘江流域水质智能预警平台</span>
+    <span class="wq-titlebar__sub" id="appSub">总氮（TN）实时预测 · 断面监测</span>
+    <span class="wq-titlebar__spacer"></span>
+    <div class="wq-titlebar__actions">
+
+      <button class="wq-ibtn" id="btnTheme" title="切换深色 / 浅色主题" aria-label="切换主题">
+        <svg class="wq-icon"><use href="#i-theme"></use></svg>
+      </button>
+      <button class="wq-ibtn" id="btnPanel" title="显示 / 隐藏内容目录" aria-label="显示隐藏目录">
+        <svg class="wq-icon"><use href="#i-panel"></use></svg>
+      </button>
+      <button class="wq-btn wq-api-button" id="btnApiSettings" title="接入自己的大模型服务"><svg class="wq-icon"><use href="#i-model"></use></svg><span>大模型 API</span><span id="llmConnectionState">未配置</span></button>
+      <button class="wq-ibtn" id="btnHelp" title="关于与接口说明" aria-label="帮助">
+        <svg class="wq-icon"><use href="#i-help"></use></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ═══════════ 功能区 ═══════════ -->
+  <div class="wq-ribbon">
+    <div class="wq-ribbon__tabs" id="ribbonTabs" role="tablist">
+      <button class="wq-tab" role="tab" data-tab="map"   aria-selected="true">地图</button>
+      <button class="wq-tab" role="tab" data-tab="data"  aria-selected="false">数据</button>
+      <button class="wq-tab" role="tab" data-tab="alert" aria-selected="false">预警</button>
+      <button class="wq-tab" role="tab" data-tab="view"  aria-selected="false">视图</button>
+    </div>
+
+    <div class="wq-ribbon__panels">
+      <div class="wq-ribbon__panel" data-panel="map" data-active="true">
+        <div class="wq-rgroup">
+          <div class="wq-rgroup__items">
+            <button class="wq-rbtn" data-view="map" aria-pressed="true">
+              <svg class="wq-icon"><use href="#i-map"></use></svg><span>地图</span></button>
+            <button class="wq-rbtn" data-view="table">
+              <svg class="wq-icon"><use href="#i-table"></use></svg><span>属性表</span></button>
+            <button class="wq-rbtn" data-view="charts">
+              <svg class="wq-icon"><use href="#i-chart"></use></svg><span>图表</span></button>
+            <button class="wq-rbtn" data-view="insight">
+              <svg class="wq-icon"><use href="#i-radar"></use></svg><span>分析看板</span></button>
+            <button class="wq-rbtn" data-view="report">
+              <svg class="wq-icon"><use href="#i-report"></use></svg><span>预警报告</span></button>
+            <button class="wq-rbtn" data-view="docs">
+              <svg class="wq-icon"><use href="#i-doc"></use></svg><span>数据说明</span></button>
+          </div>
+          <div class="wq-rgroup__label">视图</div>
+        </div>
+        <div class="wq-rgroup">
+          <div class="wq-rgroup__items">
+            <button class="wq-rbtn" data-action="fit">
+              <svg class="wq-icon"><use href="#i-fit"></use></svg><span>全图显示</span></button>
+            <button class="wq-rbtn" data-action="locate">
+              <svg class="wq-icon"><use href="#i-locate"></use></svg><span>定位断面</span></button>
+            <button class="wq-rbtn" data-action="measure">
+              <svg class="wq-icon"><use href="#i-measure"></use></svg><span>量算距离</span></button>
+            <button class="wq-rbtn" data-action="timeline">
+              <svg class="wq-icon"><use href="#i-play"></use></svg><span>时间轴回放</span></button>
+            <button class="wq-rbtn" data-action="export-map">
+              <svg class="wq-icon"><use href="#i-export"></use></svg><span>导出地图 PNG</span></button>
+          </div>
+          <div class="wq-rgroup__label">地图操作</div>
+        </div>
+        <div class="wq-rgroup">
+          <div class="wq-rgroup__items">
+            <button class="wq-rbtn" data-action="basemap" data-basemap="vector">
+              <svg class="wq-icon"><use href="#i-basemap"></use></svg><span>矢量路网</span></button>
+            <button class="wq-rbtn" data-action="basemap" data-basemap="image">
+              <svg class="wq-icon"><use href="#i-layers"></use></svg><span>卫星影像</span></button>
+            <button class="wq-rbtn" data-action="geo-layer" data-layer="basin" aria-pressed="false">
+              <svg class="wq-icon"><use href="#i-river"></use></svg><span>流域边界</span></button>
+            <button class="wq-rbtn" data-action="geo-layer" data-layer="landuse" aria-pressed="false">
+              <svg class="wq-icon"><use href="#i-landuse"></use></svg><span>土地利用</span></button>
+            <button class="wq-rbtn" data-action="method">
+              <svg class="wq-icon"><use href="#i-info"></use></svg><span>方法说明</span></button>
+          </div>
+          <div class="wq-rgroup__label">底图</div>
+        </div>
+      </div>
+
+      <div class="wq-ribbon__panel" data-panel="data">
+        <div class="wq-rgroup">
+          <div class="wq-rgroup__items">
+            <button class="wq-rbtn wq-rbtn--accent" data-action="predict">
+              <svg class="wq-icon"><use href="#i-predict"></use></svg><span>运行预测</span></button>
+            <button class="wq-rbtn" data-action="refresh">
+              <svg class="wq-icon"><use href="#i-refresh"></use></svg><span>刷新数据</span></button>
+            <button class="wq-rbtn" data-action="add-station">
+              <svg class="wq-icon"><use href="#i-station"></use></svg><span>新增站点</span></button>
+            <button class="wq-rbtn" data-action="model-eval">
+              <svg class="wq-icon"><use href="#i-model"></use></svg><span>模型简报</span></button>
+          </div>
+          <div class="wq-rgroup__label">模型与数据</div>
+        </div>
+        <div class="wq-rgroup">
+          <div class="wq-rgroup__items">
+            <button class="wq-rbtn" data-action="export-station">
+              <svg class="wq-icon"><use href="#i-download"></use></svg><span>导出断面CSV</span></button>
+            <button class="wq-rbtn" data-action="export-table">
+              <svg class="wq-icon"><use href="#i-export"></use></svg><span>导出属性表</span></button>
+          </div>
+          <div class="wq-rgroup__label">导出</div>
+        </div>
+        <div class="wq-rgroup">
+          <div class="wq-rgroup__items">
+            <button class="wq-rbtn" data-action="filter" data-filter="all" aria-pressed="true">
+              <svg class="wq-icon"><use href="#i-list"></use></svg><span>全部断面</span></button>
+            <button class="wq-rbtn" data-action="filter" data-filter="target">
+              <svg class="wq-icon"><use href="#i-station"></use></svg><span>仅预测断面</span></button>
+            <button class="wq-rbtn" data-action="filter" data-filter="upstream">
+              <svg class="wq-icon"><use href="#i-river"></use></svg><span>仅上游断面</span></button>
+          </div>
+          <div class="wq-rgroup__label">筛选</div>
+        </div>
+      </div>
+
+      <div class="wq-ribbon__panel" data-panel="alert">
+        <div class="wq-rgroup">
+          <div class="wq-rgroup__items">
+            <button class="wq-rbtn wq-rbtn--accent" data-action="new-report">
+              <svg class="wq-icon"><use href="#i-add"></use></svg><span>新建报告</span></button>
+            <button class="wq-rbtn" data-action="report-templates">
+              <svg class="wq-icon"><use href="#i-report"></use></svg><span>参考模板</span></button>
+            <button class="wq-rbtn" data-action="report-list">
+              <svg class="wq-icon"><use href="#i-list"></use></svg><span>报告列表</span></button>
+          </div>
+          <div class="wq-rgroup__label">预警报告</div>
+        </div>
+        <div class="wq-rgroup">
+          <div class="wq-rgroup__items">
+            <button class="wq-rbtn" data-action="rules">
+              <svg class="wq-icon"><use href="#i-threshold"></use></svg><span>判定阈值</span></button>
+          </div>
+          <div class="wq-rgroup__label">判定依据</div>
+        </div>
+      </div>
+
+      <div class="wq-ribbon__panel" data-panel="view">
+        <div class="wq-rgroup">
+          <div class="wq-rgroup__items">
+            <button class="wq-rbtn" data-action="theme">
+              <svg class="wq-icon"><use href="#i-theme"></use></svg><span>切换主题</span></button>
+            <button class="wq-rbtn" data-action="toggle-side">
+              <svg class="wq-icon"><use href="#i-panel"></use></svg><span>内容目录</span></button>
+          </div>
+          <div class="wq-rgroup__label">外观</div>
+        </div>
+        <div class="wq-rgroup">
+          <div class="wq-rgroup__items">
+            <button class="wq-rbtn" data-action="about">
+              <svg class="wq-icon"><use href="#i-info"></use></svg><span>关于</span></button>
+          </div>
+          <div class="wq-rgroup__label">帮助</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ 主体 ═══════════ -->
+  <div class="wq-body" id="body">
+
+    <aside class="wq-side" id="side">
+      <div class="wq-panel__header">
+        <svg class="wq-icon"><use href="#i-list"></use></svg>
+        <span>内容目录</span>
+        <span class="wq-panel__spacer"></span>
+        <span class="wq-tree__meta" id="stationCount">0 / 0</span>
+      </div>
+      <div class="wq-toolbar">
+        <input class="wq-input" id="stationSearch" placeholder="搜索断面 / 河流 / 城市" style="flex:1">
+      </div>
+      <div class="wq-panel__body wq-panel__body--flush" id="stationGroups"></div>
+    </aside>
+
+    <main class="wq-viewport">
+
+      <section class="wq-view" id="view-map" data-active="true">
+        <div class="wq-map">
+          <div class="wq-map__canvas" id="map"></div>
+          <div class="wq-map__overlays">
+            <div class="wq-map__overlay wq-legend" id="legend">
+              <div class="wq-legend__title">图例</div>
+              <div id="legendRows"></div>
+            </div>
+            <div class="wq-map__overlay wq-legend wq-legend--lu" id="landuseLegend" hidden>
+              <div class="wq-legend__title" id="landuseLegendTitle">土地利用</div>
+              <div class="wq-lu__grid" id="landuseLegendRows"></div>
+              <div class="wq-lu__note" id="landuseLegendNote" hidden></div>
+            </div>
+          </div>
+
+          <!-- 时间轴回放条：默认隐藏，点功能区「时间轴回放」才出现。
+               放在地图容器内、图例之外，避免与图例/比例尺抢位置。 -->
+          <div class="wq-timeline" id="wqTimeline" hidden>
+            <button class="wq-ibtn" id="tlPrev" title="上一帧" aria-label="上一帧">&#8249;</button>
+            <button class="wq-ibtn wq-timeline__play" id="tlPlay" title="播放 / 暂停" aria-label="播放或暂停">
+              <svg class="wq-icon"><use href="#i-play"></use></svg></button>
+            <button class="wq-ibtn" id="tlNext" title="下一帧" aria-label="下一帧">&#8250;</button>
+            <span class="wq-timeline__date" id="tlDate">--</span>
+            <input class="wq-timeline__range" id="tlRange" type="range" min="0" max="0" value="0" step="1"
+                   aria-label="时间轴进度">
+            <span class="wq-timeline__info" id="tlInfo"></span>
+            <span class="wq-timeline__badge" id="tlMode" hidden></span>
+            <button class="wq-ibtn" id="tlClose" title="退出回放" aria-label="退出回放">
+              <svg class="wq-icon"><use href="#i-close"></use></svg></button>
+          </div>
+        </div>
+      </section>
+
+      <section class="wq-view" id="view-table">
+        <div class="wq-toolbar">
+          <span id="tableTitle">属性表</span>
+          <span class="wq-toolbar__sep"></span>
+          <input class="wq-input" id="tableSearch" placeholder="表内筛选" style="width:180px">
+          <span class="wq-toolbar__sep"></span>
+          <span class="wq-tree__meta" id="tableCount">0 行</span>
+          <span class="wq-toolbar__sep"></span>
+          <span class="wq-hint" title="占标率 = 实测值 ÷ 超标限值，≥100% 即超标">次行为占标率</span>
+          <span class="wq-toolbar__spacer"></span>
+          <button class="wq-btn" data-action="export-table">
+            <svg class="wq-icon"><use href="#i-download"></use></svg>导出 CSV</button>
+        </div>
+        <div class="wq-tablewrap">
+          <table class="wq-table" id="dataTable">
+            <thead id="tableHead"></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+          <div class="wq-empty" id="tableEmpty" hidden>
+            <svg class="wq-icon"><use href="#i-table"></use></svg>
+            <div class="wq-empty__title">暂无数据</div>
+            <div>请选择左侧断面，或先运行一次预测</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="wq-view" id="view-charts">
+        <div class="wq-toolbar">
+          <span>指标</span>
+          <select class="wq-select" id="chartMetric" style="width:150px"></select>
+          <span class="wq-toolbar__sep"></span>
+          <span>断面</span>
+          <select class="wq-select" id="chartStation" style="width:150px"></select>
+          <span class="wq-toolbar__spacer"></span>
+          <label class="wq-lv selectable" style="font-size:var(--fs-sm)">
+            <input type="checkbox" id="chartThresholds" checked> 显示阈值线
+          </label>
+          <span class="wq-toolbar__sep"></span>
+          <button class="wq-btn" data-action="export-series">
+            <svg class="wq-icon"><use href="#i-download"></use></svg>导出 CSV</button>
+          <button class="wq-btn" data-action="export-chart-png" data-chart="chart">
+            <svg class="wq-icon"><use href="#i-export"></use></svg>导出 PNG</button>
+        </div>
+        <div class="wq-chartcap" id="chartCap">趋势图</div>
+        <div class="wq-chart" id="chart"></div>
+      </section>
+
+      <section class="wq-view" id="view-report">
+        <div class="wq-split">
+          <div class="wq-split__left">
+            <div class="wq-panel__header">
+              <svg class="wq-icon"><use href="#i-report"></use></svg>
+              <span>报告列表</span>
+              <span class="wq-panel__spacer"></span>
+              <button class="wq-ibtn wq-ibtn--ai" data-action="generate-report" title="指定断面，由在线大模型生成报告">
+                <svg class="wq-icon"><use href="#i-spark"></use></svg></button>
+              <button class="wq-ibtn" data-action="new-report" title="新建报告（粘贴监测文本）">
+                <svg class="wq-icon"><use href="#i-add"></use></svg></button>
+            </div>
+            <div class="wq-panel__body wq-panel__body--flush" style="flex:1">
+              <ul class="wq-replist" id="reportList"></ul>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;min-height:0">
+            <div class="wq-report" id="reportDetail">
+              <div class="wq-empty">
+                <svg class="wq-icon"><use href="#i-report"></use></svg>
+                <div class="wq-empty__title">未选择报告</div>
+                <div>从左侧选择一份，或点「新建报告」粘贴监测文本进行阈值判定</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="wq-view" id="view-insight">
+        <div class="wq-toolbar">
+          <span>排行指标</span>
+          <select class="wq-select" id="insMetric" style="width:132px" title="断面排行按哪个指标排序"></select>
+          <span class="wq-toolbar__sep"></span>
+          <span>雷达断面</span>
+          <select class="wq-select" id="insStation" style="width:132px"></select>
+          <span class="wq-toolbar__sep"></span>
+          <span class="wq-tree__meta" id="insMeta">--</span>
+          <span class="wq-toolbar__spacer"></span>
+          <button class="wq-btn" data-action="export-insight">
+            <svg class="wq-icon"><use href="#i-download"></use></svg>导出台账 CSV</button>
+        </div>
+        <div class="wq-dash" id="insightDash">
+          <section class="wq-card">
+            <header class="wq-card__head">
+              <svg class="wq-icon"><use href="#i-chart"></use></svg>
+              <span class="wq-card__title">断面排行</span>
+              <span class="wq-card__spacer"></span>
+              <button class="wq-ibtn" data-action="export-chart-png" data-chart="chartRank" title="导出这张图为 PNG">
+                <svg class="wq-icon"><use href="#i-export"></use></svg></button>
+            </header>
+            <div class="wq-card__desc" id="rankDesc">按所选指标的最新监测值降序；条色为等级色</div>
+            <div class="wq-chartbox" id="chartRank"></div>
+          </section>
+
+          <section class="wq-card">
+            <header class="wq-card__head">
+              <svg class="wq-icon"><use href="#i-radar"></use></svg>
+              <span class="wq-card__title">指标占标率雷达</span>
+              <span class="wq-card__spacer"></span>
+              <button class="wq-ibtn" data-action="export-chart-png" data-chart="chartRadar" title="导出这张图为 PNG">
+                <svg class="wq-icon"><use href="#i-export"></use></svg></button>
+            </header>
+            <div class="wq-card__desc" id="radarDesc">100% = 刚好达到超标限值；溶解氧已反向处理</div>
+            <div class="wq-chartbox" id="chartRadar"></div>
+          </section>
+
+          <section class="wq-card">
+            <header class="wq-card__head">
+              <svg class="wq-icon"><use href="#i-donut"></use></svg>
+              <span class="wq-card__title">等级构成</span>
+              <span class="wq-card__spacer"></span>
+              <button class="wq-ibtn" data-action="export-chart-png" data-chart="chartLevel" title="导出这张图为 PNG">
+                <svg class="wq-icon"><use href="#i-export"></use></svg></button>
+            </header>
+            <div class="wq-card__desc" id="levelDesc">按每个断面的最差等级归类（取最新一条记录）</div>
+            <div class="wq-chartbox" id="chartLevel"></div>
+          </section>
+
+          <section class="wq-card">
+            <header class="wq-card__head">
+              <svg class="wq-icon"><use href="#i-warn"></use></svg>
+              <span class="wq-card__title">首要超标指标构成</span>
+              <span class="wq-card__spacer"></span>
+              <button class="wq-ibtn" data-action="export-chart-png" data-chart="chartCause" title="导出这张图为 PNG">
+                <svg class="wq-icon"><use href="#i-export"></use></svg></button>
+            </header>
+            <div class="wq-card__desc" id="causeDesc">只统计判定为超标的断面，按其占标率最高的指标归类</div>
+            <div class="wq-chartbox" id="chartCause"></div>
+          </section>
+
+          <section class="wq-card wq-card--wide">
+            <header class="wq-card__head">
+              <svg class="wq-icon"><use href="#i-calendar"></use></svg>
+              <span class="wq-card__title">超标断面日历</span>
+              <span class="wq-card__spacer"></span>
+              <button class="wq-ibtn" data-action="export-chart-png" data-chart="chartCalendar" title="导出这张图为 PNG">
+                <svg class="wq-icon"><use href="#i-export"></use></svg></button>
+            </header>
+            <div class="wq-card__desc" id="calDesc">按日聚合：当天有多个断面存在超标指标；空白格 = 当天无数据</div>
+            <div class="wq-chartbox wq-chartbox--short" id="chartCalendar"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="wq-view" id="view-docs">
+        <div class="wq-toolbar">
+          <span>数据说明</span>
+          <span class="wq-toolbar__sep"></span>
+          <span class="wq-hint" id="docsMeta">正在读取接口…</span>
+          <span class="wq-toolbar__spacer"></span>
+          <button class="wq-btn" data-action="refresh-docs">
+            <svg class="wq-icon"><use href="#i-refresh"></use></svg>重新读取</button>
+        </div>
+        <div class="wq-docwrap">
+          <article class="wq-doc" id="docsBody"></article>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ═══════════ 状态栏 ═══════════ -->
+  <footer class="wq-statusbar">
+    <span class="wq-status"><span class="wq-status__led" id="stLed"></span><span id="stStatus">正在初始化…</span></span>
+    <span class="wq-status">断面 <span id="stStations">-</span></span>
+    <span class="wq-status">数据基准 <span id="stBaseline">-</span></span>
+    <span class="wq-status">末次预测 <span id="stPredict">-</span></span>
+    <span class="wq-status wq-status--grow" id="stCoords">WGS-84</span>
+  </footer>
+
+</div>
+
+<div class="wq-toasts" id="toasts"></div>
+<div id="dialogHost"></div>
+
+<script src="app.config.js?v=%V%"></script>
+<script src="assets/vendor/leaflet/leaflet.js"></script>
+<script src="assets/vendor/echarts.min.js"></script>
+<!-- 断面台账不再放在前端：启动后从 GET /api/stations 拉取（后端是唯一数据源）。
+     coord.js 仍需要 —— 它把 WGS-84 转成高德底图用的 GCJ-02，属于显示层。 -->
+<script src="assets/js/coord.js?v=%V%"></script>
+<script src="assets/js/core.js?v=%V%"></script>
+<script src="assets/js/shell.js?v=%V%"></script>
+<script src="assets/js/views.js?v=%V%"></script>
+<!-- 展示层扩展：图表公共件 → 分析看板 → 数据说明 → 模型简报 → 导出 → 时间轴。
+     都只依赖 WQ.data / WQ.api，不认识后端实现，也不各自写一套等级判定。 -->
+<script src="assets/js/charts.js?v=%V%"></script>
+<script src="assets/js/insight.js?v=%V%"></script>
+<script src="assets/js/docs.js?v=%V%"></script>
+<script src="assets/js/model.js?v=%V%"></script>
+<script src="assets/js/exporters.js?v=%V%"></script>
+<script src="assets/js/timeline.js?v=%V%"></script>
+<script src="assets/js/kpi.js?v=%V%"></script>
+<script src="assets/js/llm-settings.js?v=%V%"></script>
+<script src="assets/js/main.js?v=%V%"></script>
+</body>
+</html>

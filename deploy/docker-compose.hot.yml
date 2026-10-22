@@ -1,0 +1,63 @@
+# ══════════════════════════════════════════════════════════════════════════
+# 热挂载形态：一前一后两个镜像，代码/产物全部从宿主挂进去。
+#
+#   后端  water-quality:0.9.2         代码 ./src             → /app/src
+#   前端  water-quality-frontend:0.9.2 产物 ./build/dist-docker → /usr/share/nginx/html
+#
+# 改后端：改 src/ 后 `docker restart wq_hot`（几秒）
+# 改前端：`python scripts/build_frontend.py --out build/dist-docker` 后刷新浏览器（不用重启）
+# 改 nginx 配置：`docker exec wq_hot_fe nginx -s reload`
+#
+# 与生产形态的唯一差别就是上面那两个 -v。定型时去掉它们、把内容烤进镜像即可。
+#
+# 启动：
+#   docker compose -f deploy/docker-compose.hot.yml up -d
+#   打开 http://127.0.0.1:8080/
+#
+# 说明：
+#   · 用独立的项目名/容器名（wq_hot / wq_hot_fe）与独立数据卷，**不影响**
+#     现有的 wq / wq_web（8443）；
+#   · 调度器关掉：避免与现有后端各跑一遍采集；
+#   · 这里是 HTTP，cookie 不能带 Secure，所以 WQ_COOKIE_SECURE=0
+#     （前端本来就以 token 为主，cookie 只是兼容）。
+# ══════════════════════════════════════════════════════════════════════════
+name: wqhot
+
+services:
+  wq:
+    image: water-quality:0.9.2
+    container_name: wq_hot
+    restart: unless-stopped
+    env_file: ../.env
+    environment:
+      WQ_HOST: 0.0.0.0
+      WQ_TZ: Asia/Shanghai
+      TZ: Asia/Shanghai
+      WQ_ENABLE_SCHEDULER: "0"
+      WQ_TRUST_PROXY: "1"
+      WQ_CORS_ORIGINS: "*"
+      WQ_COOKIE_SECURE: "0"
+    volumes:
+      - ../src:/app/src:ro            # ← 热挂载：后端起容器后改代码只需 restart
+      - wqhot-data:/app/data
+      - wqhot-logs:/app/var/logs
+    # 开发期用 gunicorn --reload：src/ 里文件一变，worker 自己重启（约 1 秒），
+    # 连 `docker restart` 都省了。生产镜像不要带这个参数。
+    command: ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "--threads", "4",
+              "--reload", "--access-logfile", "-", "--error-logfile", "-",
+              "water_quality.app:app"]
+
+  fe:
+    image: water-quality-frontend:0.9.2
+    container_name: wq_hot_fe
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - ../build/dist-docker:/usr/share/nginx/html:ro   # ← 热挂载：重建产物即生效
+    depends_on:
+      - wq
+
+volumes:
+  wqhot-data:
+  wqhot-logs:

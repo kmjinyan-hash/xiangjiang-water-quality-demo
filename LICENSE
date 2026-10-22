@@ -1,0 +1,48 @@
+Personal Non-Commercial Reference License
+个人非商业参考许可
+
+Copyright (c) 2026 kmjinyan-hash and the project contributors.
+All rights reserved except as expressly granted below.
+
+1. Scope / 适用范围
+This license covers the original application code, model definitions,
+accompanying inference weights, and documentation, to the extent the licensors
+hold the relevant rights. Third-party software, data, and maps retain their
+respective rights and licenses.
+本许可适用于权利人有权许可的原创应用代码、模型定义、随附推理权重及文档。
+第三方软件、数据和地图资源仍保留各自权利及许可。
+
+2. Permission / 允许用途
+Individuals may view, study, and run the unmodified application and weights
+locally for personal, non-commercial learning and reference, and make private
+copies necessary for that purpose. Retain copyright, license and research notices.
+允许个人为非商业学习、参考目的查看、研究和在本机运行本应用及随附权重，
+并制作实现该目的所必要的私人副本。须保留版权、许可与研究声明。
+
+3. Reserved uses / 保留用途
+No permission is granted for commercial exploitation, paid services,
+redistribution beyond the permissions above, or public distribution of modified
+versions. Additional uses require prior written authorization from the relevant
+rights holders. No patent or trademark rights are granted. Training source,
+private credentials and unpublished research materials are not included or licensed.
+不授予商业利用、收费服务、超出上述范围的再分发或修改版公开传播权限。
+额外用途需事先取得相关权利人书面授权；不授予专利或商标权。
+训练源代码、私人凭据及未公开科研资料不包含在本仓库授权范围中。
+
+4. Platform and statutory rights / 平台条款及法定权利
+Nothing restricts rights independently granted by applicable law or GitHub's
+applicable platform terms, including viewing and forking a public repository
+within GitHub where those terms apply. This grants no additional commercial rights.
+不限制适用法律或 GitHub 平台条款独立赋予的权利，包括相关条款允许的站内
+查看及 Fork；本条不额外授予商业权利。
+
+5. No warranty / 免责声明
+THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTIES TO THE EXTENT PERMITTED
+BY LAW. HISTORICAL SNAPSHOTS, MODEL OUTPUTS AND SYNTHETIC DEMONSTRATIONS ARE
+FOR PERSONAL REFERENCE ONLY. DO NOT RELY ON THEM FOR REGULATORY, SAFETY,
+ENVIRONMENTAL MANAGEMENT OR OTHER REAL-WORLD DECISIONS.
+在适用法律允许范围内，材料按现状提供，不作保证。历史快照、模型输出及合成
+演示仅供个人参考，不用于监管、安全、环境管理或其他实际决策。
+
+This is a custom restricted license, not an OSI-approved open-source license.
+本文件为自定义受限许可，不属于 OSI 批准的开源许可证。

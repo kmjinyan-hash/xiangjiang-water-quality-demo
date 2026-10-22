@@ -1,0 +1,55 @@
+# ============ Python ============
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+.venv/
+venv/
+env/
+
+# ============ IDE / 编辑器 ============
+.idea/
+.vscode/
+*.swp
+*~
+
+# ============ 运行时产物（不应进版本库） ============
+var/logs/
+var/backups/
+*.log
+data/app.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# ============ 备份 / 临时文件 ============
+*.bak
+*.bak-*
+*.migrating
+*.tmp
+*.orig
+
+# ============ 操作系统 ============
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# ============ 本地密钥（绝不入库）============
+.env
+.env.local
+*.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+secrets*.json
+src/water_quality/ml/train.py
+scripts/migrate_checkpoint.py
+*.ipynb
+
+# ============ 前端构建产物 ============
+dist/

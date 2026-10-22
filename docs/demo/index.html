@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>湘江水质分析平台 · 公开演示</title>
+  <link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="assets/app.css">
+  <script defer src="assets/vendor/leaflet/leaflet.js"></script>
+  <script defer src="assets/vendor/echarts.min.js"></script>
+  <script defer src="assets/app.js"></script>
+</head>
+<body>
+  <header><a class="brand" href="./"><span class="brand-icon">≈</span><span>湘江水质分析平台<small>个人作品 · 公开演示版</small></span></a><button id="api-open">大模型 API 设置</button></header>
+  <main>
+    <div class="notice">合成数据演示 · 断面位置为虚构示意 · 演示预测由示例公式生成，不包含研究模型</div>
+    <section class="intro"><div><p class="eyebrow">WATER QUALITY EXPLORER</p><h1>从一条河流，观察水质变化</h1><p>选择断面与指标，探索历史趋势、示例预警与文字解读。</p></div><span class="badge">无需登录 · 自带 API 可选</span></section>
+    <section class="stats" aria-label="演示概览"><article><span>演示断面</span><strong>14 <small>个</small></strong></article><article><span>当前指标</span><strong id="metric-label">总氮</strong></article><article><span>当前示例值</span><strong id="current-value">—</strong></article><article><span>示例规则状态</span><strong id="rule-status">—</strong></article></section>
+    <section class="workspace">
+      <article class="panel map-panel"><div class="panel-heading"><div><h2>断面示意图</h2><p>点击圆点切换断面</p></div><span class="muted">虚构位置</span></div><div id="map" aria-label="虚构断面位置示意图"></div><div class="map-caption">无外部地图底图；连线仅表示演示断面顺序，不代表真实河道。</div></article>
+      <article class="panel trend-panel"><div class="panel-heading"><div><h2>历史与演示预测</h2><p id="station-subtitle">演示断面 01</p></div><div class="controls"><label>断面<select id="station-select"></select></label><label>指标<select id="metric-select"></select></label></div></div><div id="chart" role="img" aria-label="所选断面的合成历史曲线与公式生成的演示预测"></div><p class="chart-caption">实线：30 天合成历史 · 虚线：未来 7 天示例公式 · 点线：自定义演示阈值</p></article>
+    </section>
+    <section class="bottom-grid"><article class="panel"><div class="panel-heading"><div><h2>演示数据摘要</h2><p>帮助理解当前图表</p></div><button id="export">导出合成 CSV</button></div><dl id="summary"></dl><p class="muted">阈值为界面演示设定，不能用于水质等级判定。</p></article><article class="panel"><div class="panel-heading"><div><h2>大模型文字解读</h2><p>使用你自己的 OpenAI 兼容接口</p></div><button id="analyze" class="primary">生成解读</button></div><p class="muted">点击生成后，将向设置的服务发送当前断面的合成数据摘要。费用由你与服务商结算。</p><pre id="analysis" aria-live="polite">基础图表无需 API。配置后，可体验文字解读。</pre></article></section>
+    <footer>© 2026 kmjinyan-hash and the project contributors · <a href="LICENSE">个人非商业参考许可</a> · <a href="THIRD_PARTY_NOTICES.md">第三方声明</a><p>公开演示不包含核心模型、权重、训练代码或真实监测资料；不能用于实际监测与决策。</p></footer>
+  </main>
+  <dialog id="api-dialog"><form id="api-form"><div class="panel-heading"><h2>连接自己的大模型 API</h2><button id="api-close" type="button" aria-label="关闭设置">×</button></div><p>密钥仅保存在当前页面内存中，刷新后清除。服务地址、模型名称会保存在本机浏览器。</p><label>API 基础地址（HTTPS，通常以 /v1 结尾）<input id="api-url" type="url" placeholder="https://api.example.com/v1" required></label><label>模型名称<input id="api-model" placeholder="服务商提供的模型 ID" required maxlength="200"></label><label>API Key<input id="api-key" type="password" autocomplete="off" required></label><p class="muted">浏览器直接连接你填写的服务，请确认地址可信且支持 CORS。测试连接也可能产生费用。</p><p id="api-message" aria-live="polite"></p><div class="actions"><button id="api-clear" type="button">清除设置与密钥</button><button id="api-test" type="button">测试连接（会发送请求）</button><button class="primary" type="submit">保存</button></div></form></dialog>
+</body></html>

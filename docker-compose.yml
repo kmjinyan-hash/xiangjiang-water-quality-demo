@@ -1,0 +1,36 @@
+services:
+  water-quality:
+    build: .
+    image: xiangjiang-water-quality:public
+    restart: unless-stopped
+    environment:
+      WQ_HOST: 0.0.0.0
+      WQ_REQUIRE_LOGIN: "0"
+      WQ_ENABLE_SCHEDULER: "0"
+      WQ_TZ: Asia/Shanghai
+      TZ: Asia/Shanghai
+      WQ_TRUST_PROXY: "1"
+      WQ_COOKIE_SECURE: "0"
+      WQ_CORS_ORIGINS: http://localhost:8080,http://127.0.0.1:8080
+    volumes:
+      - wq-data:/app/data
+      - wq-logs:/app/var/logs
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    image: xiangjiang-water-quality-web:public
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      water-quality:
+        condition: service_healthy
+volumes:
+  wq-data:
+  wq-logs:

@@ -1,0 +1,21 @@
+{
+    admin off
+    auto_https off
+}
+:80 {
+    root * /srv
+    encode gzip
+    @api path /api/*
+    handle @api {
+        reverse_proxy water-quality:5000
+    }
+    handle {
+        file_server
+    }
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options SAMEORIGIN
+        Referrer-Policy same-origin
+        -Server
+    }
+}

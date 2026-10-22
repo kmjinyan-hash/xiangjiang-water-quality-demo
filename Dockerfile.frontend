@@ -1,0 +1,10 @@
+FROM python:3.12-slim AS frontend-build
+WORKDIR /build
+COPY frontend/ ./frontend/
+COPY scripts/build_frontend.py ./scripts/build_frontend.py
+RUN python scripts/build_frontend.py --out /output
+
+FROM caddy:alpine
+COPY --from=frontend-build /output/ /srv/
+COPY deploy/Caddyfile.public /etc/caddy/Caddyfile
+EXPOSE 80

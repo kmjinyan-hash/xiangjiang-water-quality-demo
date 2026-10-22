@@ -1,0 +1,47 @@
+# 构建上下文排除清单 —— 让镜像小、构建快，并避免把密钥/产物带进去
+
+# ── 版本控制与编辑器 ──
+.git/
+.gitignore
+.gitattributes
+.idea/
+.vscode/
+*.swp
+
+# ── Python 缓存与虚拟环境 ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ── 运行时产物（容器内重新生成，不该来自构建上下文）──
+data/app.db
+data/app.db-wal
+data/app.db-shm
+var/logs/
+var/backups/
+*.log
+dist/
+
+# ── 备份与临时文件 ──
+*.bak
+*.bak-*
+*.migrating
+*.tmp
+*.orig
+
+# 本地配置与密钥；示例配置可保留
+.env
+.env.*
+*.env
+!.env.example
+
+# ── 运行时不需要的开发资料 ──
+docs/
+tests/
+README.md
+启动平台.bat
+Dockerfile
+.dockerignore

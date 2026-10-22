@@ -1,0 +1,167 @@
+{
+  "key": "landuse",
+  "name": "土地利用（2020）",
+  "type": "image",
+  "image": "landuse.png",
+  "src_crs": "GCS_WGS_1984 (EPSG:4326)",
+  "source": "GLC_2020_XJ.tif",
+  "resolution_m": 28.26,
+  "name_level": "类型级（L1）",
+  "name_pending": true,
+  "note": "类别名称给出类型级分组；细分亚类名称待官方对照表。编码 190 已用 7 个城市建成区取样核实为建成区。编码 0 为整行条带伪影（101 行有效像元 100% 为 0），已置为透明、未作任何填补。",
+  "artifact_removed": {
+    "code": 0,
+    "rows": 101,
+    "pixels": 207512
+  },
+  "verified": {
+    "190": "7 个城市建成区取样全部命中",
+    "210": "水系多边形严格内部点 94.0% 命中"
+  },
+  "classes": [
+    {
+      "code": 10,
+      "name": "耕地",
+      "verified": false,
+      "color": "#f6d880",
+      "pixels": 25282304,
+      "area_km2": 22754.1,
+      "share": 20.942
+    },
+    {
+      "code": 11,
+      "name": "耕地",
+      "verified": false,
+      "color": "#e8be5c",
+      "pixels": 137,
+      "area_km2": 0.1,
+      "share": 0.0
+    },
+    {
+      "code": 20,
+      "name": "林草植被",
+      "verified": false,
+      "color": "#609454",
+      "pixels": 27529930,
+      "area_km2": 24776.9,
+      "share": 22.804
+    },
+    {
+      "code": 51,
+      "name": "林草植被",
+      "verified": false,
+      "color": "#b0ca78",
+      "pixels": 32012,
+      "area_km2": 28.8,
+      "share": 0.027
+    },
+    {
+      "code": 52,
+      "name": "林草植被",
+      "verified": false,
+      "color": "#3a7642",
+      "pixels": 32167371,
+      "area_km2": 28950.6,
+      "share": 26.645
+    },
+    {
+      "code": 61,
+      "name": "林草植被",
+      "verified": false,
+      "color": "#96b06c",
+      "pixels": 35573,
+      "area_km2": 32.0,
+      "share": 0.029
+    },
+    {
+      "code": 62,
+      "name": "林草植被",
+      "verified": false,
+      "color": "#6e965c",
+      "pixels": 7076885,
+      "area_km2": 6369.2,
+      "share": 5.862
+    },
+    {
+      "code": 71,
+      "name": "林草植被",
+      "verified": false,
+      "color": "#c4b06c",
+      "pixels": 27356,
+      "area_km2": 24.6,
+      "share": 0.023
+    },
+    {
+      "code": 72,
+      "name": "林草植被",
+      "verified": false,
+      "color": "#a69e56",
+      "pixels": 19942412,
+      "area_km2": 17948.2,
+      "share": 16.519
+    },
+    {
+      "code": 120,
+      "name": "其他待定",
+      "verified": false,
+      "color": "#6cb0d0",
+      "pixels": 3712,
+      "area_km2": 3.3,
+      "share": 0.003
+    },
+    {
+      "code": 121,
+      "name": "其他待定",
+      "verified": false,
+      "color": "#60b0b0",
+      "pixels": 1323455,
+      "area_km2": 1191.1,
+      "share": 1.096
+    },
+    {
+      "code": 130,
+      "name": "其他待定",
+      "verified": false,
+      "color": "#96cdcd",
+      "pixels": 1332,
+      "area_km2": 1.2,
+      "share": 0.001
+    },
+    {
+      "code": 180,
+      "name": "其他待定",
+      "verified": false,
+      "color": "#c46054",
+      "pixels": 91,
+      "area_km2": 0.1,
+      "share": 0.0
+    },
+    {
+      "code": 190,
+      "name": "建成区",
+      "verified": true,
+      "color": "#d68c78",
+      "pixels": 5564642,
+      "area_km2": 5008.2,
+      "share": 4.609
+    },
+    {
+      "code": 210,
+      "name": "水域",
+      "verified": true,
+      "color": "#3c84b8",
+      "pixels": 1739166,
+      "area_km2": 1565.2,
+      "share": 1.441
+    },
+    {
+      "code": 220,
+      "name": "其他待定",
+      "verified": false,
+      "color": "#9678a0",
+      "pixels": 56,
+      "area_km2": 0.1,
+      "share": 0.0
+    }
+  ]
+}

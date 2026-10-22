@@ -1,0 +1,35 @@
+# 根路径提供主界面，/api/* 反代到 Flask；旧 /admin/ 跳转到主界面。
+# dist/index.html 仍可直接打开，主界面不需要登录。
+{
+	skip_install_trust
+	admin off
+	default_sni localhost
+}
+
+https://localhost:8443, https://DESKTOP-7D129P8:8443 {
+	tls internal
+	root * /srv
+	encode zstd gzip
+
+	@api path /api/*
+	handle @api {
+		reverse_proxy wq:5000
+	}
+
+	@adminroot path /admin /admin/*
+	handle @adminroot {
+		redir / 308
+	}
+
+	handle {
+		file_server
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		X-Frame-Options SAMEORIGIN
+		Referrer-Policy same-origin
+		-Server
+	}
+}

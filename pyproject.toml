@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "water-quality-platform"
+version = "0.9.0"
+description = "湘江流域水质智能预警平台：数据导入 + 深度学习推理 + Web 可视化"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "Proprietary" }
+# 核心依赖的钉版清单以 requirements.txt 为准（此处只声明名称，避免两处版本漂移）
+dependencies = [
+    "Flask",
+    "Werkzeug",
+    "APScheduler",
+    "pandas",
+    "numpy",
+    "torch",
+]
+
+[project.optional-dependencies]
+# 在线采集。原数据源已被官方下线，仅在其恢复或迁移后才用得上。
+crawler = ["selenium", "webdriver-manager"]
+# 直接用 --csv 导入 .xlsx（纯 CSV 导入不需要）
+excel = ["openpyxl"]
+# Linux 生产部署（容器里用）。Windows 本地开发继续用 Flask 自带服务器。
+prod = ["gunicorn"]
+# Windows 没有系统级 tz 数据库，Asia/Shanghai 会走 config.py 里的固定 +8 回退；
+# 想要完整的 tzdata 行为就装这个（容器基础镜像通常已自带）。
+tz = ["tzdata"]
+all = [
+    "selenium", "webdriver-manager",
+    "openpyxl", "tzdata",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# 前端已与后端分离：它不再放在 Python 包内，而是项目根的 frontend/ 目录，
+# 作为**独立的静态应用**交付（可托管在任意静态服务器上，后端地址由
+# frontend/app.config.js 指定）。因此这里不再声明 web/ 的 package-data。
+# 由本后端顺带托管前端时，用 WQ_FRONTEND_DIR 指定 frontend/ 的位置。

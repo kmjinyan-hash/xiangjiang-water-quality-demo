@@ -1,0 +1,53 @@
+Personal Non-Commercial Reference License — Public Demonstration Edition
+个人非商业参考许可——公开演示版
+
+Copyright (c) 2026 kmjinyan-hash and the project contributors.
+All rights reserved except as expressly granted below.
+
+1. Scope / 适用范围
+This license applies only to original demonstration code and documentation
+included in this repository. Third-party components retain their own licenses.
+本许可仅适用于本仓库中原创的公开演示代码与说明。第三方组件仍受其原许可约束。
+
+2. Permission / 允许用途
+Individuals may view, study, and run the unmodified demonstration for personal,
+non-commercial learning and reference, and make private copies necessary for
+that purpose. Copyright, license, research-reservation and synthetic-data
+notices must be retained.
+允许个人为非商业学习、参考目的查看、研究、运行本演示版本原件，并制作实现该目的
+所必要的私人副本。必须保留版权、许可、研究保留权利及合成数据声明。
+
+3. Reserved uses / 保留用途
+No permission is granted for commercial exploitation, paid services,
+redistribution outside the permissions above, or public distribution of
+modified versions. Additional rights require prior written authorization from
+the relevant rights holder(s).
+本许可不授予商业利用、收费服务、超出上述范围的再分发或修改版公开传播权限。
+需要额外用途，应事先取得相关权利人的书面授权。
+
+4. Research assets / 研究资产
+No research-model architectures, model weights, training pipelines, private
+datasets, patent rights, trademarks, or unpublished research results are
+licensed by this document. Such assets are excluded from this demonstration.
+本文件不授予核心研究模型结构、权重、训练流程、非公开数据、专利、商标或未公开
+研究成果的使用权；这些资产不包含在公开演示版本中。
+
+5. Platform and statutory rights / 平台条款及法定权利
+Nothing in this license restricts rights that applicable law or GitHub's
+applicable platform terms independently grant, including viewing and forking
+a public repository within GitHub where those terms apply. This clause does
+not grant additional commercial or redistribution rights.
+本许可不限制适用法律或 GitHub 平台条款独立赋予的权利，包括相关条款允许的站内
+查看及 Fork 公开仓库；本条不额外授予商业或再分发权利。
+
+6. No warranty / 免责声明
+THE DEMONSTRATION IS PROVIDED "AS IS", WITHOUT WARRANTIES TO THE EXTENT
+PERMITTED BY APPLICABLE LAW. ALL EXAMPLE DATA AND FORECASTS ARE SYNTHETIC,
+NOT REAL MONITORING RESULTS OR VALIDATED MODEL OUTPUTS. DO NOT USE THEM FOR
+REGULATORY, SAFETY, ENVIRONMENTAL MANAGEMENT OR OTHER REAL-WORLD DECISIONS.
+在适用法律允许范围内，演示按现状提供，不作保证。全部示例数据及演示预测均为
+合成内容，不是真实监测结果或经验证的研究模型输出，不用于监管、安全、环境管理
+或其他实际决策。
+
+This is a custom, restricted license, not an OSI-approved open-source license.
+本文件为自定义受限许可，不属于 OSI 批准的开源许可证。
